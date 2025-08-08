@@ -35,7 +35,7 @@ export default function Home() {
       },
       {
         onSuccess: () => {
-          window.alert("User Logged In successfully");
+          window.alert("User Logged In  successfully");
         },
         onError: () => {
           window.alert("Error logging in user");
