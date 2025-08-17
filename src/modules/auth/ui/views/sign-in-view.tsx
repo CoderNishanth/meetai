@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import {FaGithub,FaGoogle} from "react-icons/fa"
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -17,9 +17,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { FormInput, OctagonAlertIcon } from "lucide-react";
+import { OctagonAlertIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 const formSchema = z.object({
   email: z.string().email(),
@@ -27,7 +26,6 @@ const formSchema = z.object({
 });
 
 export const SignInView = () => {
-  const router = useRouter();
   const [error,setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -44,11 +42,31 @@ export const SignInView = () => {
     authClient.signIn.email(
       {
         email: data.email,
-        password: data.password
+        password: data.password,
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
-          router.push("/");
+          setPending(false);
+
+        },
+        onError: ({error}) => {
+          setError(error.message);
+          setPending(false);
+        }
+      }
+    );
+  }
+  const onSocial = (provider: "google" | "github") => {
+    setError(null);
+    setPending(true);
+    authClient.signIn.social(
+      {
+        provider:provider,
+        callbackURL:"/"
+      },
+      {
+        onSuccess: () => {
           setPending(false);
         },
         onError: ({error}) => {
@@ -57,7 +75,6 @@ export const SignInView = () => {
         }
       }
     );
-
   }
   return (
     <div className="flex flex-col gap-6">
@@ -125,11 +142,11 @@ export const SignInView = () => {
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" type="button" className="w-full" disabled={pending}>
-                    Google
+                  <Button variant="outline" type="button" className="w-full" disabled={pending} onClick={() => onSocial("google")}>
+                    <FaGoogle />
                   </Button>
-                  <Button variant="outline" type="button" className="w-full" disabled={pending}>
-                    GitHub
+                  <Button variant="outline" type="button" className="w-full" disabled={pending} onClick={()=>onSocial("github")}>
+                    <FaGithub />
                   </Button>
                 </div>
                 <div className="text-center text-sm">
