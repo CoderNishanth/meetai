@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import {FaGithub,FaGoogle} from "react-icons/fa"
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -17,24 +17,28 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { FormInput, OctagonAlertIcon } from "lucide-react";
+import { OctagonAlertIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-const formSchema = z.object({
-  name: z.string().min(1, { message: "Name is required" }),
-  email: z.string().email(),
-  password: z.string().min(1, { message: "Password is required" }),
-  confirmPassword: z.string().min(1, { message: "Confirm Password is required" }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-}); 
+import { useRouter } from "next/navigation";
+const formSchema = z
+  .object({
+    name: z.string().min(1, { message: "Name is required" }),
+    email: z.string().email(),
+    password: z.string().min(1, { message: "Password is required" }),
+    confirmPassword: z
+      .string()
+      .min(1, { message: "Confirm Password is required" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export const SignUpView = () => {
-  const router = useRouter();
-  const [error,setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,7 +46,7 @@ export const SignUpView = () => {
       name: "",
       email: "",
       password: "",
-      confirmPassword: ""
+      confirmPassword: "",
     },
   });
   const onSubmit = (data: z.infer<typeof formSchema>) => {
@@ -56,17 +60,35 @@ export const SignUpView = () => {
       },
       {
         onSuccess: () => {
-          router.push("/");
           setPending(false);
+          router.push("/");
         },
-        onError: ({error}) => {
+        onError: ({ error }) => {
           setError(error.message);
           setPending(false);
-        }
+        },
       }
     );
-
-  }
+  };
+  const onSocial = (provider: "google" | "github") => {
+    setError(null);
+    setPending(true);
+    authClient.signIn.social(
+      {
+        provider: provider,
+        callbackURL: "/",
+      },
+      {
+        onSuccess: () => {
+          setPending(false);
+        },
+        onError: ({ error }) => {
+          setError(error.message);
+          setPending(false);
+        },
+      }
+    );
+  };
   return (
     <div className="flex flex-col gap-6">
       <Card className="overflow-hidden p-0">
@@ -163,7 +185,7 @@ export const SignUpView = () => {
                   </Alert>
                 )}
                 <Button type="submit" className="w-full" disabled={pending}>
-                  Sign In
+                  Sign Up
                 </Button>
                 <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                   <span className="bg-card text-muted-foreground relative z-10 px-2">
@@ -171,15 +193,34 @@ export const SignUpView = () => {
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" type="button" className="w-full" disabled={pending}>
-                    Google
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full"
+                    disabled={pending}
+                    onClick={() => onSocial("google")}
+                  >
+                    <FaGoogle />
                   </Button>
-                  <Button variant="outline" type="button" className="w-full" disabled={pending}>
-                    GitHub
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full"
+                    disabled={pending}
+                    onClick={() => onSocial("github")}
+                  >
+                    <FaGithub />
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Already have an account?{" "}<Link href="/sign-in" className="underline underline-offset-4"> Sign In</Link>
+                  Already have an account?{" "}
+                  <Link
+                    href="/sign-in"
+                    className="underline underline-offset-4"
+                  >
+                    {" "}
+                    Sign In
+                  </Link>
                 </div>
               </div>
             </form>
@@ -190,10 +231,9 @@ export const SignUpView = () => {
           </div>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground  *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4"> 
-        By clicking continue, you agree to our{" "}
-        <a href="#">Terms of Service</a> and{" "}
-        <a href="#">Privacy Policy</a>.
+      <div className="text-muted-foreground  *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+        and <a href="#">Privacy Policy</a>.
       </div>
     </div>
   );
