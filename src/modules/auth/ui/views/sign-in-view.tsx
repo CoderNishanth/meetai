@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {FaGithub,FaGoogle} from "react-icons/fa"
+import { FaGithub, FaGoogle } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { OctagonAlertIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, OctagonAlertIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 const formSchema = z.object({
@@ -26,7 +26,8 @@ const formSchema = z.object({
 });
 
 export const SignInView = () => {
-  const [error,setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [pending, setPending] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -48,34 +49,33 @@ export const SignInView = () => {
       {
         onSuccess: () => {
           setPending(false);
-
         },
-        onError: ({error}) => {
+        onError: ({ error }) => {
           setError(error.message);
           setPending(false);
-        }
+        },
       }
     );
-  }
+  };
   const onSocial = (provider: "google" | "github") => {
     setError(null);
     setPending(true);
     authClient.signIn.social(
       {
-        provider:provider,
-        callbackURL:"/"
+        provider: provider,
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
           setPending(false);
         },
-        onError: ({error}) => {
+        onError: ({ error }) => {
           setError(error.message);
           setPending(false);
-        }
+        },
       }
     );
-  }
+  };
   return (
     <div className="flex flex-col gap-6">
       <Card className="overflow-hidden p-0">
@@ -112,19 +112,30 @@ export const SignInView = () => {
                   <FormField
                     control={form.control}
                     name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="••••••••"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type={showPassword ? "text" : "password"}
+                                placeholder="••••••••"
+                                {...field}
+                              />
+                              <button
+                                type="button"
+                                className="absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground"
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                              </button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   ></FormField>
                 </div>
                 {!!error && (
@@ -142,15 +153,34 @@ export const SignInView = () => {
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" type="button" className="w-full" disabled={pending} onClick={() => onSocial("google")}>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full"
+                    disabled={pending}
+                    onClick={() => onSocial("google")}
+                  >
                     <FaGoogle />
                   </Button>
-                  <Button variant="outline" type="button" className="w-full" disabled={pending} onClick={()=>onSocial("github")}>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full"
+                    disabled={pending}
+                    onClick={() => onSocial("github")}
+                  >
                     <FaGithub />
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Don&apos;t have an account?{" "}<Link href="/sign-up" className="underline underline-offset-4"> Sign Up</Link>
+                  Don&apos;t have an account?{" "}
+                  <Link
+                    href="/sign-up"
+                    className="underline underline-offset-4"
+                  >
+                    {" "}
+                    Sign Up
+                  </Link>
                 </div>
               </div>
             </form>
@@ -161,10 +191,9 @@ export const SignInView = () => {
           </div>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground  *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4"> 
-        By clicking continue, you agree to our{" "}
-        <a href="#">Terms of Service</a> and{" "}
-        <a href="#">Privacy Policy</a>.
+      <div className="text-muted-foreground  *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+        and <a href="#">Privacy Policy</a>.
       </div>
     </div>
   );
