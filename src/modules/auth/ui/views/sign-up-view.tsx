@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {FaGithub,FaGoogle} from "react-icons/fa"
+import { FaGithub, FaGoogle } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { OctagonAlertIcon } from "lucide-react";
+import { OctagonAlertIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -37,7 +37,8 @@ const formSchema = z
 
 export const SignUpView = () => {
   const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
+  const [pending, setPending] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -148,11 +149,20 @@ export const SignUpView = () => {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="••••••••"
-                            {...field}
-                          />
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              {...field}
+                            />
+                            <button
+                              type="button"
+                              className="absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                            </button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -168,7 +178,7 @@ export const SignUpView = () => {
                         <FormLabel>Confirm Password</FormLabel>
                         <FormControl>
                           <Input
-                            type="password"
+                            type="text"
                             placeholder="••••••••"
                             {...field}
                           />
