@@ -12,10 +12,11 @@ export const AgentsView = () => {
   
   return (
     <div>
+      <p>{JSON.stringify(data, null, 2)}</p>
       <ResponsiveDialog
         title="Agents"
         description="List of all agents"
-        open={true}
+        open={false}
         onOpenChange={() => {}}
       >
         <button className="mb-4 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
